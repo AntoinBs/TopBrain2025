@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import monai
 
 from monai.transforms import (
     Compose,
@@ -14,6 +15,20 @@ from monai.transforms import (
 from utils import CustomScaleIntensityRanged, BiasFieldCorrection
 from monai.data import DataLoader, Dataset
 
+def custom_filename(metadict: dict, saver: monai.transforms.Transform) -> str:
+    """
+    Custom function to generate filenames based on the original filename.
+    This function can be modified to fit specific naming conventions.
+    """
+    subject = (
+        metadict.get(monai.utils.ImageMetaKey.FILENAME_OR_OBJ, getattr(saver, "_data_index", 0))
+        if metadict
+        else getattr(saver, "_data_index", 0)
+    )
+    original_filename = os.path.basename(subject)
+    subject = "_".join(original_filename.split('.')[0].split('_')[:3]) + "." + ".".join(original_filename.split('.')[1:])
+    patch_index = metadict.get(monai.utils.ImageMetaKey.PATCH_INDEX, None) if metadict else None
+    return {"subject": f"{subject}", "idx": patch_index}
 
 def build_metadata_dataframe():
     """
@@ -35,6 +50,7 @@ def build_metadata_dataframe():
             if file.endswith('.nii') or file.endswith('.nii.gz'):
                 file_path = os.path.join(folder_path, file)
                 file_name = file
+
                 modality = file.split('_')[1]
 
                 metadatas.append({'file_name': file_name, 'file_path': file_path, 'modality': modality})
@@ -82,6 +98,7 @@ if __name__ == "__main__":
         SaveImaged(
             keys=['image'],
             output_dir='./data/preprocessed/images',
+            output_name_formatter=custom_filename,
             output_postfix='preproc',
             separate_folder=False
         ),
