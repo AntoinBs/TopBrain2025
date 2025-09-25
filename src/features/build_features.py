@@ -12,7 +12,7 @@ from monai.transforms import (
     SaveImaged
 )
 
-from utils import CustomScaleIntensityRanged, BiasFieldCorrection
+from src.features.utils import CustomScaleIntensityRanged, BiasFieldCorrection
 from monai.data import DataLoader, Dataset
 
 def custom_filename(metadict: dict, saver: monai.transforms.Transform) -> str:
@@ -97,14 +97,14 @@ if __name__ == "__main__":
         SpatialPadd(keys=['image', 'label'], spatial_size=(96, 96, 96)),
         SaveImaged(
             keys=['image'],
-            output_dir='./data/preprocessed/images',
+            output_dir='./data/processed/images',
             output_name_formatter=custom_filename,
             output_postfix='preproc',
             separate_folder=False
         ),
         SaveImaged(
             keys=['label'],
-            output_dir='./data/preprocessed/labels',
+            output_dir='./data/processed/labels',
             output_postfix='preproc',
             separate_folder=False
         )
@@ -121,4 +121,4 @@ if __name__ == "__main__":
         print(f"Label {i+1}/{l} saved")
 
     print("Preprocessing and saving completed.")
-    print("Preprocessed images and labels are saved in './data/preprocessed/images' and './data/preprocessed/labels' respectively.")
+    print("Preprocessed images and labels are saved in './data/processed/images' and './data/processed/labels' respectively.")
