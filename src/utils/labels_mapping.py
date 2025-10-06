@@ -57,7 +57,9 @@ GLOBAL_TO_CTA = {v: k for k, v in CTA_TO_GLOBAL.items()}
 GLOBAL_TO_MRA = {v: k for k, v in MRA_TO_GLOBAL.items()}
 
 from monai.transforms import MapTransform
+from monai.data import MetaTensor
 import numpy as np
+import torch
 
 class RelabelByModality(MapTransform):
     """
@@ -86,7 +88,26 @@ class RelabelByModality(MapTransform):
         return d
 
     def _remap(self, arr, mapping):
-        out = arr.copy()
+        # Handle MetaTensor, torch.Tensor, or numpy array
+        is_metatensor = isinstance(arr, MetaTensor)
+        
+        # Convert to numpy for mapping
+        if isinstance(arr, (MetaTensor, torch.Tensor)):
+            arr_np = arr.cpu().numpy() if arr.is_cuda else arr.numpy()
+        else:
+            arr_np = np.asarray(arr)
+        
+        # Create output array
+        out = arr_np.copy()
+        
+        # Apply mapping
         for orig, target in mapping.items():
-            out[arr == orig] = target
-        return out
+            out[arr_np == orig] = target
+        
+        # Restore original type
+        if is_metatensor:
+            return MetaTensor(out, meta=arr.meta)
+        elif isinstance(arr, torch.Tensor):
+            return torch.from_numpy(out).to(arr.device)
+        else:
+            return out
