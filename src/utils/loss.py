@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from monai.losses import DiceCELoss, SoftclDiceLoss
+from monai.losses import DiceCELoss
 
 def _soft_erode3d(x):
     return -F.max_pool3d(-x, kernel_size=3, stride=1, padding=1)
