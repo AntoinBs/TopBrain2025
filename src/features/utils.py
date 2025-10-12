@@ -1,6 +1,7 @@
 import numpy as np
 
 import SimpleITK as sitk
+from itertools import cycle
 
 from monai.transforms import (
     MapTransform,
@@ -95,9 +96,16 @@ class BalancedCTMRSampler(Sampler):
             np.random.shuffle(self.ct_indices)
             np.random.shuffle(self.mr_indices)
 
-        for ct_idx, mr_idx in zip(self.ct_indices, self.mr_indices):
-            yield ct_idx
-            yield mr_idx
+        if len(self.ct_indices) > len(self.mr_indices):
+            longer, shorter = self.ct_indices, self.mr_indices
+        else:
+            longer, shorter = self.mr_indices, self.ct_indices
+
+        shorter_cycle = cycle(shorter)
+
+        for long_idx, short_idx in zip(longer, shorter_cycle):
+            yield long_idx
+            yield short_idx
 
     def __len__(self):
-        return min(len(self.ct_indices), len(self.mr_indices)) * 2
+        return 2 * max(len(self.ct_indices), len(self.mr_indices))
