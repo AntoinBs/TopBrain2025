@@ -40,10 +40,10 @@ def build_processed_df(data_dir: str) -> pd.DataFrame:
 
     return df
 
-def build_label_presence_matrix(df: pd.DataFrame) -> np.ndarray:
+def build_label_presence_matrix(df: pd.DataFrame, label_path_col: str = 'label_path') -> np.ndarray:
     matrix = []
     for _, row in df.iterrows():
-        label_map = nib.load(row['label_path']).get_fdata() if pd.notnull(row['label_path']) else None
+        label_map = nib.load(row[label_path_col]).get_fdata() if pd.notnull(row[label_path_col]) else None
         if label_map is not None:
             relabel_transform = RelabelByModality(keys=['label'], reverse=False)
             label_map = relabel_transform({'label': label_map, 'modality': row['modality']})['label']
