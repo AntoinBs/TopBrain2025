@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  mlflow:
+    build: .
+    container_name: mlflow_local
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+      - ./mlflow.db:/mlflow/mlflow.db
+    restart: unless-stopped
