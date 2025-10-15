@@ -94,7 +94,7 @@ if __name__ == "__main__":
         CustomScaleIntensityRanged(keys=['image'], min=0.0, max=1.0),
         Orientationd(keys=['image', 'label'], axcodes="LPS"),
         Spacingd(keys=['image', 'label'], pixdim=(0.7, 0.7, 0.7), mode=['bilinear', 'nearest']),
-        SpatialPadd(keys=['image', 'label'], spatial_size=(96, 96, 96)),
+        SpatialPadd(keys=['image', 'label'], spatial_size=(128, 128, 128)),
         SaveImaged(
             keys=['image'],
             output_dir='./data/processed/images',
