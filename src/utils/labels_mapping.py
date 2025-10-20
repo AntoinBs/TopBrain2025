@@ -75,6 +75,10 @@ class RelabelByModality(MapTransform):
         d = dict(data)
         modality = d.get("modality", None)
 
+        # handle list-like modalities
+        if isinstance(modality, (list, tuple)) and len(modality) == 1:
+            modality = modality[0]
+
         if modality == 'ct':
             mapping = GLOBAL_TO_CTA if self.reverse else CTA_TO_GLOBAL
         elif modality == 'mr':
